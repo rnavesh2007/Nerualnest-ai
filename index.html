@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NeuralNest — Learn AI, Shape the Future</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:   #0A0F1E;
+    --navy2:  #0F1629;
+    --indigo: #4F46E5;
+    --indigo-light: #6366F1;
+    --cyan:   #22D3EE;
+    --white:  #F8F9FF;
+    --slate:  #94A3B8;
+    --slate2: #64748B;
+    --card:   #111827;
+    --border: rgba(255,255,255,0.07);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 5%;
+    background: rgba(10,15,30,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 800; font-size: 1.4rem;
+    color: var(--white);
+    display: flex; align-items: center; gap: .5rem;
+  }
+  .logo span { color: var(--cyan); }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    color: var(--slate); text-decoration: none;
+    font-size: .9rem; font-weight: 500;
+    transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--white); }
+  .nav-cta {
+    background: var(--indigo); color: var(--white);
+    border: none; padding: .6rem 1.4rem; border-radius: 8px;
+    font-size: .9rem; font-weight: 600; cursor: pointer;
+    transition: background .2s, transform .15s;
+  }
+  .nav-cta:hover { background: var(--indigo-light); transform: translateY(-1px); }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    padding: 6rem 5% 4rem;
+    position: relative; overflow: hidden;
+  }
+  .hero-content {
+    max-width: 620px; z-index: 2; position: relative;
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: .5rem;
+    background: rgba(79,70,229,.15);
+    border: 1px solid rgba(79,70,229,.35);
+    padding: .35rem .9rem; border-radius: 100px;
+    font-size: .78rem; font-weight: 600; color: var(--indigo-light);
+    letter-spacing: .04em; text-transform: uppercase;
+    margin-bottom: 1.4rem;
+  }
+  .eyebrow .dot { width: 6px; height: 6px; background: var(--cyan); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 800; line-height: 1.1;
+    margin-bottom: 1.2rem;
+    letter-spacing: -.02em;
+  }
+  h1 em { font-style: normal; color: var(--cyan); }
+
+  .hero-sub {
+    font-size: 1.1rem; color: var(--slate);
+    max-width: 480px; margin-bottom: 2.2rem;
+  }
+  .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--indigo); color: var(--white);
+    padding: .85rem 2rem; border-radius: 10px;
+    border: none; font-size: 1rem; font-weight: 600; cursor: pointer;
+    transition: background .2s, transform .15s, box-shadow .2s;
+    box-shadow: 0 0 0 0 rgba(79,70,229,0);
+  }
+  .btn-primary:hover { background: var(--indigo-light); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(79,70,229,.45); }
+  .btn-secondary {
+    background: transparent; color: var(--white);
+    padding: .85rem 2rem; border-radius: 10px;
+    border: 1px solid var(--border); font-size: 1rem; font-weight: 500; cursor: pointer;
+    transition: border-color .2s, background .2s;
+  }
+  .btn-secondary:hover { border-color: var(--slate); background: rgba(255,255,255,.04); }
+
+  .hero-stats {
+    display: flex; gap: 2.5rem; margin-top: 3.5rem; flex-wrap: wrap;
+  }
+  .stat { border-left: 2px solid var(--indigo); padding-left: 1rem; }
+  .stat-num {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.9rem; font-weight: 800; color: var(--white);
+  }
+  .stat-num span { color: var(--cyan); }
+  .stat-label { font-size: .8rem; color: var(--slate); font-weight: 500; }
+
+  /* Neural network canvas */
+  #neural-canvas {
+    position: absolute; right: 0; top: 0;
+    width: 55%; height: 100%; opacity: .55;
+    pointer-events: none;
+  }
+
+  /* ── SECTION SHARED ── */
+  section { padding: 6rem 5%; }
+  .section-tag {
+    font-size: .75rem; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--cyan);
+    margin-bottom: .75rem;
+  }
+  .section-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 800; line-height: 1.15;
+    letter-spacing: -.02em; margin-bottom: 1rem;
+  }
+  .section-sub { color: var(--slate); max-width: 540px; font-size: 1.05rem; }
+
+  /* ── ABOUT ── */
+  #about {
+    background: var(--navy2);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem; align-items: center;
+  }
+  .about-visual {
+    position: relative;
+  }
+  .about-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 2rem;
+    position: relative; overflow: hidden;
+  }
+  .about-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--indigo), var(--cyan));
+  }
+  .about-list { list-style: none; margin-top: 1.5rem; }
+  .about-list li {
+    display: flex; align-items: flex-start; gap: .75rem;
+    padding: .75rem 0; border-bottom: 1px solid var(--border);
+    font-size: .95rem; color: var(--slate);
+  }
+  .about-list li:last-child { border-bottom: none; }
+  .about-list li .check {
+    width: 20px; height: 20px; background: rgba(34,211,238,.15);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; color: var(--cyan); font-size: .7rem; margin-top: 2px;
+  }
+  .floating-badge {
+    position: absolute; bottom: -1rem; right: -1rem;
+    background: linear-gradient(135deg, var(--indigo), #7C3AED);
+    border-radius: 12px; padding: 1rem 1.2rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700; font-size: 1.1rem;
+    box-shadow: 0 12px 40px rgba(79,70,229,.4);
+  }
+  .floating-badge small { display: block; font-size: .7rem; font-weight: 400; opacity: .8; }
+
+  /* ── COURSES ── */
+  #courses { background: var(--navy); }
+  .courses-header { margin-bottom: 3rem; }
+  .courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 1.5rem;
+  }
+  .course-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 1.8rem;
+    transition: transform .25s, border-color .25s, box-shadow .25s;
+    cursor: pointer;
+    position: relative; overflow: hidden;
+  }
+  .course-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(79,70,229,.4);
+    box-shadow: 0 20px 60px rgba(0,0,0,.4);
+  }
+  .course-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; margin-bottom: 1.2rem;
+  }
+  .course-card h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.1rem; font-weight: 700; margin-bottom: .5rem;
+  }
+  .course-card p { font-size: .88rem; color: var(--slate); line-height: 1.55; }
+  .course-meta {
+    display: flex; gap: 1rem; margin-top: 1.2rem; flex-wrap: wrap;
+  }
+  .course-meta span {
+    font-size: .75rem; font-weight: 600;
+    padding: .3rem .7rem; border-radius: 6px;
+    background: rgba(255,255,255,.05);
+    color: var(--slate);
+  }
+  .badge-new {
+    position: absolute; top: 1rem; right: 1rem;
+    background: var(--cyan); color: var(--navy);
+    font-size: .65rem; font-weight: 800;
+    padding: .2rem .55rem; border-radius: 5px;
+    letter-spacing: .04em; text-transform: uppercase;
+  }
+
+  /* ── FEATURES ── */
+  #features { background: var(--navy2); }
+  .features-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem; align-items: center;
+    margin-top: 3rem;
+  }
+  .feat-list { display: flex; flex-direction: column; gap: 1.5rem; }
+  .feat-item {
+    display: flex; gap: 1.2rem; align-items: flex-start;
+    padding: 1.4rem; border-radius: 12px;
+    border: 1px solid transparent;
+    transition: background .2s, border-color .2s;
+    cursor: default;
+  }
+  .feat-item:hover {
+    background: rgba(255,255,255,.03);
+    border-color: var(--border);
+  }
+  .feat-icon {
+    width: 46px; height: 46px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; flex-shrink: 0;
+  }
+  .feat-item h4 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700; margin-bottom: .3rem; font-size: 1rem;
+  }
+  .feat-item p { font-size: .88rem; color: var(--slate); }
+  .feat-visual {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px; padding: 2rem;
+    min-height: 380px;
+    display: flex; flex-direction: column; gap: 1rem;
+    position: relative; overflow: hidden;
+  }
+  .feat-visual::before {
+    content: '';
+    position: absolute; top: -60px; right: -60px;
+    width: 180px; height: 180px;
+    background: radial-gradient(circle, rgba(79,70,229,.3) 0%, transparent 70%);
+  }
+  .terminal-bar {
+    display: flex; gap: .4rem; margin-bottom: .5rem;
+  }
+  .terminal-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+  .code-line {
+    font-family: 'Courier New', monospace;
+    font-size: .82rem; color: var(--slate);
+    padding: .4rem 0;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+  }
+  .code-line .kw { color: #C084FC; }
+  .code-line .fn { color: var(--cyan); }
+  .code-line .str { color: #86EFAC; }
+  .code-line .cm { color: #475569; }
+  .output-box {
+    background: rgba(34,211,238,.06);
+    border: 1px solid rgba(34,211,238,.2);
+    border-radius: 8px; padding: .75rem 1rem;
+    font-family: 'Courier New', monospace;
+    font-size: .8rem; color: var(--cyan); margin-top: auto;
+  }
+
+  /* ── TESTIMONIALS ── */
+  #testimonials { background: var(--navy); }
+  .testi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem; margin-top: 3rem;
+  }
+  .testi-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 1.8rem;
+    position: relative;
+  }
+  .quote-mark {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 4rem; line-height: .8;
+    color: var(--indigo); opacity: .4;
+    margin-bottom: .5rem;
+  }
+  .testi-card p { font-size: .9rem; color: var(--slate); line-height: 1.65; margin-bottom: 1.4rem; }
+  .testi-author { display: flex; align-items: center; gap: .9rem; }
+  .avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700; font-size: .9rem;
+  }
+  .testi-author .name { font-weight: 600; font-size: .9rem; }
+  .testi-author .role { font-size: .78rem; color: var(--slate); }
+  .stars { color: #FBBF24; font-size: .85rem; margin-bottom: 1rem; }
+
+  /* ── CONTACT ── */
+  #contact { background: var(--navy2); }
+  .contact-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 5rem; align-items: start;
+    margin-top: 3rem;
+  }
+  .contact-info h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.3rem; font-weight: 700; margin-bottom: 1rem;
+  }
+  .contact-info p { color: var(--slate); font-size: .95rem; line-height: 1.7; margin-bottom: 2rem; }
+  .contact-detail {
+    display: flex; align-items: center; gap: .9rem;
+    padding: .8rem 0; border-bottom: 1px solid var(--border);
+    font-size: .9rem; color: var(--slate);
+  }
+  .contact-detail .icon {
+    width: 36px; height: 36px;
+    background: rgba(79,70,229,.15);
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; flex-shrink: 0;
+  }
+  .contact-form {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px; padding: 2.5rem;
+  }
+  .form-group { margin-bottom: 1.3rem; }
+  .form-group label {
+    display: block; font-size: .82rem; font-weight: 600;
+    color: var(--slate); margin-bottom: .45rem; letter-spacing: .02em;
+  }
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    width: 100%;
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--border);
+    border-radius: 10px; padding: .75rem 1rem;
+    color: var(--white); font-size: .95rem; font-family: inherit;
+    outline: none; transition: border-color .2s;
+    resize: vertical;
+  }
+  .form-group input:focus,
+  .form-group textarea:focus,
+  .form-group select:focus { border-color: var(--indigo); }
+  .form-group select option { background: var(--card); }
+  .submit-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--indigo), #7C3AED);
+    color: var(--white); border: none;
+    padding: .95rem; border-radius: 10px;
+    font-size: 1rem; font-weight: 700; cursor: pointer;
+    transition: opacity .2s, transform .15s;
+    margin-top: .5rem;
+    font-family: inherit;
+  }
+  .submit-btn:hover { opacity: .9; transform: translateY(-1px); }
+
+  /* success toast */
+  #toast {
+    position: fixed; bottom: 2rem; right: 2rem;
+    background: #166534; border: 1px solid #16a34a;
+    color: #86efac; padding: 1rem 1.5rem;
+    border-radius: 12px; font-size: .9rem; font-weight: 500;
+    opacity: 0; pointer-events: none;
+    transition: opacity .3s;
+    z-index: 999;
+  }
+  #toast.show { opacity: 1; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--navy);
+    border-top: 1px solid var(--border);
+    padding: 4rem 5% 2rem;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.8fr 1fr 1fr 1fr;
+    gap: 3rem; margin-bottom: 3rem;
+  }
+  .footer-brand .logo { font-size: 1.2rem; margin-bottom: 1rem; }
+  .footer-brand p { font-size: .88rem; color: var(--slate); line-height: 1.65; max-width: 240px; }
+  .footer-col h4 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: .85rem; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
+    color: var(--white); margin-bottom: 1rem;
+  }
+  .footer-col ul { list-style: none; }
+  .footer-col ul li {
+    margin-bottom: .6rem;
+  }
+  .footer-col ul li a {
+    color: var(--slate); text-decoration: none;
+    font-size: .88rem; transition: color .2s;
+  }
+  .footer-col ul li a:hover { color: var(--white); }
+  .footer-bottom {
+    border-top: 1px solid var(--border);
+    padding-top: 1.5rem;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 1rem;
+  }
+  .footer-bottom p { font-size: .82rem; color: var(--slate2); }
+  .socials { display: flex; gap: .75rem; }
+  .social-btn {
+    width: 34px; height: 34px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid var(--border);
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    font-size: .9rem; cursor: pointer; transition: background .2s;
+    text-decoration: none; color: var(--slate);
+  }
+  .social-btn:hover { background: rgba(255,255,255,.1); color: var(--white); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    #about { grid-template-columns: 1fr; gap: 2.5rem; }
+    .features-grid { grid-template-columns: 1fr; }
+    .contact-wrap { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .nav-links { display: none; }
+    #neural-canvas { width: 100%; opacity: .15; }
+  }
+  @media (max-width: 600px) {
+    h1 { font-size: 2rem; }
+    .hero-stats { gap: 1.5rem; }
+    .footer-grid { grid-template-columns: 1fr; }
+    .footer-bottom { flex-direction: column; text-align: center; }
+  }
+
+  /* scroll reveal */
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+      <circle cx="11" cy="11" r="3" fill="#22D3EE"/>
+      <circle cx="3" cy="4" r="2" fill="#4F46E5"/>
+      <circle cx="19" cy="4" r="2" fill="#4F46E5"/>
+      <circle cx="3" cy="18" r="2" fill="#4F46E5"/>
+      <circle cx="19" cy="18" r="2" fill="#4F46E5"/>
+      <line x1="11" y1="11" x2="3" y2="4" stroke="#4F46E5" stroke-width="1.2"/>
+      <line x1="11" y1="11" x2="19" y2="4" stroke="#4F46E5" stroke-width="1.2"/>
+      <line x1="11" y1="11" x2="3" y2="18" stroke="#4F46E5" stroke-width="1.2"/>
+      <line x1="11" y1="11" x2="19" y2="18" stroke="#4F46E5" stroke-width="1.2"/>
+      <line x1="3" y1="4" x2="19" y2="4" stroke="#4F46E5" stroke-width=".8" opacity=".4"/>
+      <line x1="3" y1="18" x2="19" y2="18" stroke="#4F46E5" stroke-width=".8" opacity=".4"/>
+    </svg>
+    Neural<span>Nest</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#courses">Courses</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#testimonials">Reviews</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Get Started</button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <canvas id="neural-canvas"></canvas>
+  <div class="hero-content">
+    <div class="eyebrow"><span class="dot"></span> AI-Powered Learning Platform</div>
+    <h1>Learn <em>Artificial Intelligence</em> from the Ground Up</h1>
+    <p class="hero-sub">Structured, project-based AI education for students, developers, and curious minds. From Python basics to building real neural networks.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="document.getElementById('courses').scrollIntoView({behavior:'smooth'})">Explore Courses</button>
+      <button class="btn-secondary" onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'})">Learn More</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num">12<span>K+</span></div>
+        <div class="stat-label">Active Learners</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">48<span>+</span></div>
+        <div class="stat-label">AI Courses</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">98<span>%</span></div>
+        <div class="stat-label">Satisfaction Rate</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-visual reveal">
+    <div class="about-card">
+      <div class="section-tag">Who We Are</div>
+      <h3 style="font-family:'Space Grotesk',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:.5rem;">Built by AI practitioners, for AI learners</h3>
+      <p style="color:var(--slate);font-size:.9rem;">NeuralNest was founded by a team of researchers, engineers, and educators who believe world-class AI education should be accessible to everyone — not just those at elite universities.</p>
+      <ul class="about-list">
+        <li><span class="check">✓</span>Curriculum aligned with industry requirements and real-world use cases</li>
+        <li><span class="check">✓</span>Hands-on projects reviewed by experienced AI engineers</li>
+        <li><span class="check">✓</span>Community of 12,000+ learners across 40+ countries</li>
+        <li><span class="check">✓</span>Certifications recognized by leading tech companies</li>
+        <li><span class="check">✓</span>Free foundational tracks for students and beginners</li>
+      </ul>
+    </div>
+    <div class="floating-badge">
+      🏆 #1 AI Ed Platform<br><small>Student Choice Awards 2024</small>
+    </div>
+  </div>
+  <div class="reveal" style="transition-delay:.15s">
+    <div class="section-tag">Our Mission</div>
+    <h2 class="section-title">Democratizing AI education, one learner at a time</h2>
+    <p class="section-sub">The AI revolution is rewriting every industry. We exist to make sure no motivated learner gets left behind — regardless of background or resources.</p>
+    <p style="color:var(--slate);font-size:.95rem;margin-top:1.5rem;line-height:1.75;">From first-semester college students to career-switching professionals, NeuralNest meets you where you are. Our adaptive learning paths ensure you always study what's most relevant to your goals — whether that's landing an ML internship, shipping a data product, or simply understanding how ChatGPT works.</p>
+    <button class="btn-primary" style="margin-top:2rem;" onclick="document.getElementById('courses').scrollIntoView({behavior:'smooth'})">See All Courses →</button>
+  </div>
+</section>
+
+<!-- COURSES -->
+<section id="courses">
+  <div class="courses-header reveal">
+    <div class="section-tag">Curriculum</div>
+    <h2 class="section-title">Courses designed for real outcomes</h2>
+    <p class="section-sub">Every track ends with a portfolio-ready capstone project you can show to recruiters.</p>
+  </div>
+  <div class="courses-grid">
+    <div class="course-card reveal">
+      <div class="course-icon" style="background:rgba(79,70,229,.15);">🐍</div>
+      <h3>Python for AI & Data Science</h3>
+      <p>Master Python from scratch with a focus on data manipulation, visualization, and scripting for machine learning pipelines.</p>
+      <div class="course-meta">
+        <span>⏱ 8 weeks</span>
+        <span>🟢 Beginner</span>
+        <span>Free</span>
+      </div>
+    </div>
+    <div class="course-card reveal" style="transition-delay:.08s">
+      <span class="badge-new">New</span>
+      <div class="course-icon" style="background:rgba(34,211,238,.1);">🧠</div>
+      <h3>Deep Learning with PyTorch</h3>
+      <p>Build CNNs, RNNs, and Transformers from the ground up. Deploy your models as REST APIs and web demos.</p>
+      <div class="course-meta">
+        <span>⏱ 12 weeks</span>
+        <span>🟡 Intermediate</span>
+        <span>₹999</span>
+      </div>
+    </div>
+    <div class="course-card reveal" style="transition-delay:.16s">
+      <div class="course-icon" style="background:rgba(124,58,237,.15);">🤖</div>
+      <h3>Generative AI & LLMs</h3>
+      <p>Understand and fine-tune large language models. Build RAG pipelines, AI chatbots, and document intelligence apps.</p>
+      <div class="course-meta">
+        <span>⏱ 10 weeks</span>
+        <span>🟡 Intermediate</span>
+        <span>₹1,299</span>
+      </div>
+    </div>
+    <div class="course-card reveal" style="transition-delay:.24s">
+      <div class="course-icon" style="background:rgba(251,191,36,.1);">📊</div>
+      <h3>Data Science & Analytics</h3>
+      <p>From EDA to advanced statistical modeling — build dashboards, run A/B tests, and communicate insights clearly.</p>
+      <div class="course-meta">
+        <span>⏱ 10 weeks</span>
+        <span>🟢 Beginner</span>
+        <span>₹799</span>
+      </div>
+    </div>
+    <div class="course-card reveal" style="transition-delay:.32s">
+      <span class="badge-new">Hot</span>
+      <div class="course-icon" style="background:rgba(16,185,129,.1);">👁</div>
+      <h3>Computer Vision</h3>
+      <p>Object detection, semantic segmentation, and real-time video analysis using OpenCV and YOLO.</p>
+      <div class="course-meta">
+        <span>⏱ 8 weeks</span>
+        <span>🔴 Advanced</span>
+        <span>₹1,499</span>
+      </div>
+    </div>
+    <div class="course-card reveal" style="transition-delay:.4s">
+      <div class="course-icon" style="background:rgba(239,68,68,.1);">🎯</div>
+      <h3>ML for Competitive Exams</h3>
+      <p>Crack GATE, ISRO, and data science interviews. 500+ solved problems with patterns, tricks, and timed mock tests.</p>
+      <div class="course-meta">
+        <span>⏱ 6 weeks</span>
+        <span>🟡 Intermediate</span>
+        <span>₹599</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="reveal">
+    <div class="section-tag">Platform</div>
+    <h2 class="section-title">Everything you need to go from zero to job-ready</h2>
+  </div>
+  <div class="features-grid">
+    <div class="feat-list">
+      <div class="feat-item reveal">
+        <div class="feat-icon" style="background:rgba(79,70,229,.15);">⚡</div>
+        <div>
+          <h4>AI-Powered Code Feedback</h4>
+          <p>Submit your code and get instant, line-level feedback from our AI reviewer — like having a senior engineer always available.</p>
+        </div>
+      </div>
+      <div class="feat-item reveal" style="transition-delay:.1s">
+        <div class="feat-icon" style="background:rgba(34,211,238,.1);">🗺</div>
+        <div>
+          <h4>Adaptive Learning Paths</h4>
+          <p>Your curriculum adjusts based on your pace, quiz scores, and career goals. No wasted time on what you already know.</p>
+        </div>
+      </div>
+      <div class="feat-item reveal" style="transition-delay:.2s">
+        <div class="feat-icon" style="background:rgba(124,58,237,.15);">🏆</div>
+        <div>
+          <h4>Industry Certificates</h4>
+          <p>Earn verifiable certificates accepted by 200+ hiring partners. Share directly to LinkedIn in one click.</p>
+        </div>
+      </div>
+      <div class="feat-item reveal" style="transition-delay:.3s">
+        <div class="feat-icon" style="background:rgba(251,191,36,.1);">💬</div>
+        <div>
+          <h4>Mentor Office Hours</h4>
+          <p>Weekly live Q&A sessions with industry mentors from Google, Microsoft, and top AI startups.</p>
+        </div>
+      </div>
+    </div>
+    <div class="feat-visual reveal" style="transition-delay:.1s">
+      <div class="terminal-bar">
+        <div class="terminal-dot" style="background:#EF4444"></div>
+        <div class="terminal-dot" style="background:#F59E0B"></div>
+        <div class="terminal-dot" style="background:#10B981"></div>
+        <span style="margin-left:.5rem;font-size:.75rem;color:var(--slate);">model_trainer.py</span>
+      </div>
+      <div class="code-line"><span class="kw">import</span> torch, torch.nn <span class="kw">as</span> nn</div>
+      <div class="code-line"><span class="kw">from</span> neuralnest <span class="kw">import</span> <span class="fn">DataLoader</span>, <span class="fn">Trainer</span></div>
+      <div class="code-line"><span class="cm"># Define a simple feedforward net</span></div>
+      <div class="code-line"><span class="kw">class</span> <span class="fn">SimpleNet</span>(nn.Module):</div>
+      <div class="code-line">&nbsp;&nbsp;<span class="kw">def</span> <span class="fn">__init__</span>(self):</div>
+      <div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;self.fc1 = nn.<span class="fn">Linear</span>(784, 128)</div>
+      <div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;self.fc2 = nn.<span class="fn">Linear</span>(128, 10)</div>
+      <div class="code-line"><span class="cm"># 🚀 Train with one line</span></div>
+      <div class="code-line">trainer = <span class="fn">Trainer</span>(model=<span class="fn">SimpleNet</span>(), epochs=<span class="str">10</span>)</div>
+      <div class="code-line">trainer.<span class="fn">fit</span>(train_loader, val_loader)</div>
+      <div class="output-box">
+        ✅ Epoch 10/10 — Loss: 0.042 — Accuracy: 98.3%<br>
+        🧠 AI Feedback: Great job! Try adding dropout for better generalization.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="reveal" style="text-align:center;max-width:540px;margin:0 auto;">
+    <div class="section-tag">Student Stories</div>
+    <h2 class="section-title">Results that speak for themselves</h2>
+  </div>
+  <div class="testi-grid">
+    <div class="testi-card reveal">
+      <div class="quote-mark">"</div>
+      <div class="stars">★★★★★</div>
+      <p>I went from knowing nothing about AI to landing an ML internship at a Series B startup — all within 6 months of joining NeuralNest. The project-based curriculum made all the difference.</p>
+      <div class="testi-author">
+        <div class="avatar" style="background:rgba(79,70,229,.2);color:var(--indigo-light);">AR</div>
+        <div>
+          <div class="name">Arjun Ravi</div>
+          <div class="role">B.Tech CS, NIT Trichy → ML Intern</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card reveal" style="transition-delay:.1s">
+      <div class="quote-mark">"</div>
+      <div class="stars">★★★★★</div>
+      <p>The Generative AI course is genuinely industry-level. I built a RAG-powered chatbot for my college project and got selected for a national hackathon. The mentor sessions are gold.</p>
+      <div class="testi-author">
+        <div class="avatar" style="background:rgba(34,211,238,.1);color:var(--cyan);">PM</div>
+        <div>
+          <div class="name">Priya Menon</div>
+          <div class="role">Data Science Student, Chennai</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card reveal" style="transition-delay:.2s">
+      <div class="quote-mark">"</div>
+      <div class="stars">★★★★★</div>
+      <p>As a working professional switching from finance to AI, I needed something structured but flexible. NeuralNest's adaptive paths fit perfectly around my job. Got my first data role within 8 months.</p>
+      <div class="testi-author">
+        <div class="avatar" style="background:rgba(124,58,237,.15);color:#C084FC;">SK</div>
+        <div>
+          <div class="name">Siddharth Kumar</div>
+          <div class="role">Ex-Finance Analyst → Data Engineer</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="reveal" style="text-align:center;max-width:500px;margin:0 auto 0;">
+    <div class="section-tag">Contact Us</div>
+    <h2 class="section-title">Ready to start your AI journey?</h2>
+    <p class="section-sub" style="margin:0 auto;">Reach out for course queries, partnership opportunities, or just to say hello.</p>
+  </div>
+  <div class="contact-wrap">
+    <div class="contact-info reveal">
+      <h3>Get in touch</h3>
+      <p>We typically respond within 24 hours on business days. For urgent queries, use the WhatsApp link below.</p>
+      <div class="contact-detail"><div class="icon">📧</div> hello@neuralnest.ai</div>
+      <div class="contact-detail"><div class="icon">📞</div> +91 98765 43210</div>
+      <div class="contact-detail"><div class="icon">📍</div> Chennai, Tamil Nadu, India</div>
+      <div class="contact-detail"><div class="icon">💬</div> WhatsApp: +91 98765 43210</div>
+    </div>
+    <div class="contact-form reveal" style="transition-delay:.15s">
+      <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;margin-bottom:1.5rem;">Send us a message</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="form-group">
+          <label>First Name</label>
+          <input type="text" id="fname" placeholder="Arjun" />
+        </div>
+        <div class="form-group">
+          <label>Last Name</label>
+          <input type="text" id="lname" placeholder="Ravi" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="femail" placeholder="you@example.com" />
+      </div>
+      <div class="form-group">
+        <label>I'm interested in</label>
+        <select id="finterest">
+          <option value="">Select a topic</option>
+          <option>Python for AI & Data Science</option>
+          <option>Deep Learning with PyTorch</option>
+          <option>Generative AI & LLMs</option>
+          <option>Computer Vision</option>
+          <option>Career Guidance</option>
+          <option>Partnership / Collaboration</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Message</label>
+        <textarea id="fmsg" rows="4" placeholder="Tell us about your goals or questions..."></textarea>
+      </div>
+      <button class="submit-btn" onclick="handleSubmit()">Send Message →</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo">
+        <svg width="18" height="18" viewBox="0 0 22 22" fill="none">
+          <circle cx="11" cy="11" r="3" fill="#22D3EE"/>
+          <circle cx="3" cy="4" r="2" fill="#4F46E5"/>
+          <circle cx="19" cy="4" r="2" fill="#4F46E5"/>
+          <circle cx="3" cy="18" r="2" fill="#4F46E5"/>
+          <circle cx="19" cy="18" r="2" fill="#4F46E5"/>
+          <line x1="11" y1="11" x2="3" y2="4" stroke="#4F46E5" stroke-width="1.2"/>
+          <line x1="11" y1="11" x2="19" y2="4" stroke="#4F46E5" stroke-width="1.2"/>
+          <line x1="11" y1="11" x2="3" y2="18" stroke="#4F46E5" stroke-width="1.2"/>
+          <line x1="11" y1="11" x2="19" y2="18" stroke="#4F46E5" stroke-width="1.2"/>
+        </svg>
+        Neural<span>Nest</span>
+      </div>
+      <p>World-class AI education for the next generation of machine learning engineers, researchers, and builders.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Courses</h4>
+      <ul>
+        <li><a href="#">Python for AI</a></li>
+        <li><a href="#">Deep Learning</a></li>
+        <li><a href="#">Generative AI</a></li>
+        <li><a href="#">Data Science</a></li>
+        <li><a href="#">Computer Vision</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Press</a></li>
+        <li><a href="#">Partners</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="#">Help Center</a></li>
+        <li><a href="#">Community</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Service</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 NeuralNest. All rights reserved. Built with ❤️ in Chennai, India.</p>
+    <div class="socials">
+      <a class="social-btn" href="#" title="LinkedIn">in</a>
+      <a class="social-btn" href="#" title="Twitter">𝕏</a>
+      <a class="social-btn" href="#" title="GitHub">⌥</a>
+      <a class="social-btn" href="#" title="YouTube">▶</a>
+    </div>
+  </div>
+</footer>
+
+<div id="toast">✅ Message sent! We'll get back to you within 24 hours.</div>
+
+<script>
+// ── NEURAL CANVAS ──
+const canvas = document.getElementById('neural-canvas');
+const ctx = canvas.getContext('2d');
+let nodes = [], W, H;
+
+function resize() {
+  W = canvas.width = canvas.offsetWidth;
+  H = canvas.height = canvas.offsetHeight;
+}
+resize(); window.addEventListener('resize', () => { resize(); initNodes(); });
+
+function initNodes() {
+  nodes = [];
+  const count = Math.floor((W * H) / 22000);
+  for (let i = 0; i < Math.max(count, 18); i++) {
+    nodes.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: (Math.random() - .5) * .4,
+      vy: (Math.random() - .5) * .4,
+      r: Math.random() * 2.5 + 1.5
+    });
+  }
+}
+initNodes();
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  // connections
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      const dx = nodes[i].x - nodes[j].x;
+      const dy = nodes[i].y - nodes[j].y;
+      const d = Math.sqrt(dx*dx + dy*dy);
+      if (d < 160) {
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(79,70,229,${(1 - d/160) * .5})`;
+        ctx.lineWidth = .8;
+        ctx.moveTo(nodes[i].x, nodes[i].y);
+        ctx.lineTo(nodes[j].x, nodes[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+  // nodes
+  nodes.forEach(n => {
+    ctx.beginPath();
+    const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 2);
+    grad.addColorStop(0, 'rgba(34,211,238,.9)');
+    grad.addColorStop(1, 'rgba(79,70,229,0)');
+    ctx.fillStyle = grad;
+    ctx.arc(n.x, n.y, n.r * 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // move
+    n.x += n.vx; n.y += n.vy;
+    if (n.x < 0 || n.x > W) n.vx *= -1;
+    if (n.y < 0 || n.y > H) n.vy *= -1;
+  });
+  requestAnimationFrame(draw);
+}
+draw();
+
+// ── SCROLL REVEAL ──
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+}, { threshold: 0.12 });
+reveals.forEach(r => observer.observe(r));
+
+// ── FORM ──
+function handleSubmit() {
+  const name = document.getElementById('fname').value.trim();
+  const email = document.getElementById('femail').value.trim();
+  if (!name || !email) { alert('Please fill in at least your name and email.'); return; }
+  const toast = document.getElementById('toast');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 4000);
+  ['fname','lname','femail','fmsg'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('finterest').value = '';
+}
+</script>
+</body>
+</html>
